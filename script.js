@@ -1,5 +1,4 @@
-"use strict"; 
-
+"use strict";
 /**
  *  gridInit removes then creates new grid
  */
@@ -46,12 +45,14 @@ function pixelDraw() {
       this.style.opacity =`${+(this.style.opacity) + 0.1}` ;
     else
       this.style.opacity = '0.1';
+
     this.style.backgroundColor = `rgba(0,0,0, ${this.style.opacity})`;
   } 
   else
-  //this.style.border = '0px'; // somehow border: 0px; slows grid with 30+ pixels down   
-    this.style.backgroundColor = `${randomColor()}`; 
-}
+    this.style.backgroundColor = `${randomColor()}`;
+  
+  this.style.border = '0px'; // somehow border: 0px; slows grid with 30+ pixels down (dev mode issue)   
+  }
 
 let container = document.querySelector('.grid-container__sketch');
 let pixels = container.querySelectorAll('div'); // childNodes returns text nodes
