@@ -1,3 +1,4 @@
+// bad code 
 "use strict";
 
 function Grid() {
@@ -26,8 +27,8 @@ function Controls () {
   this.size = this.sizeElem.value;
   this.res = document.querySelector("input[name='reset']");
 
-  this.buttonListener = function(callback) {
-    this.button.addEventListener('click', () => { this.size = this.sizeElem.value; callback() } );
+  this.buttonListener = function(callback, obj) {
+    this.button.addEventListener('click', () => { this.size = this.sizeElem.value; callback(obj) } );
   }
  
   this.modeListener = function(callback) {
@@ -39,6 +40,7 @@ function Controls () {
     this.res.addEventListener('click', () => callback());
   }
 }
+
 
 function pixelDraw () {
   function randomColor() { 
@@ -60,7 +62,7 @@ function pixelDraw () {
     this.style.border = '0px'; // somehow border: 0px; slows grid with 30+ pixels down (dev mode issue)  
 }
 
-function gridInit () {
+function gridInit (grid) {
   let size = ctrl.size;
   grid.pixels.forEach(node => node.remove());
 
@@ -88,7 +90,7 @@ function gridInit () {
 let grid = new Grid();
 grid.resetcssText = grid.resetcssText.bind(grid);
 
-gridInit(); 
-ctrl.buttonListener(gridInit);
+gridInit(grid); 
+ctrl.buttonListener(gridInit, grid); // func and args of it
 ctrl.modeListener(grid.resetcssText);
 ctrl.resListener(grid.resetcssText);
