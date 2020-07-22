@@ -4,9 +4,9 @@ function Grid() {
   this.container = document.querySelector('.grid-container__sketch'); 
   this.pixels = this.container.querySelectorAll('div'); // try children
 
-  this.pixelsListener = function (callback) {
+   /* this.pixelsListener = function (callback) {
     this.pixels.forEach(elem => elem.addEventListener('mouseover', callback));
-  }
+  }  */
 
   this.resetcssText = function() {
     this.pixels.forEach(node => { node.style.cssText=""; node.classList.remove('grid-container__sketch-hover')}); 
@@ -16,6 +16,46 @@ function Grid() {
     this.container = document.querySelector('.grid-container__sketch'); 
     this.pixels = this.container.querySelectorAll('div');
   }
+
+  this.gridInit = function (callback, size, mode) { 
+      this.pixels.forEach(node => node.remove());
+
+      //consider css variables
+      this.container.style.cssText =`grid-template-columns: repeat(${size}, 1fr); grid-template-rows: repeat(${size}, 1fr);`; 
+      
+      for(let squareSize = size*size, node; squareSize > 0; squareSize--) {
+        node = document.createElement('div');
+        this.container.appendChild(node);
+      }
+      console.log("hi");
+      this.update();
+      this.pixels.forEach(elem => elem.addEventListener('mouseover', () => callback(mode) ));
+  }
+  
+  
+  this.pixelDraw = function (mode) {
+    function randomColor() { 
+      return '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
+    }
+      //this.classList.toggle('grid-container__sketch-hover'); // 3d rotation
+      if(mode == 'greyscale') {
+          if(event.target.style.opacity)
+            event.target.style.opacity =`${+(event.target.style.opacity) + 0.1}` ;
+          else
+            event.target.style.opacity = '0.1';
+      
+          event.target.style.backgroundColor = `rgba(0, 0, 0, ${event.target.style.opacity})`;
+      } 
+      else
+          event.target.style.backgroundColor = `${randomColor()}`;
+      
+      event.target.style.border = '0px'; // somehow border: 0px; slows grid with 30+ pixels down (dev mode issue)
+  }
+
+    
+  this.resetcssText = this.resetcssText.bind(this);
+  this.gridInit = this.gridInit.bind(this);
+  this.pixelDraw = this.pixelDraw.bind(this);
 } 
   
 function Controls () {
@@ -26,13 +66,15 @@ function Controls () {
   this.size = this.sizeElem.value;
   this.res = document.querySelector("input[name='reset']");
 
-  this.buttonListener = function(callback) {
-    this.button.addEventListener('click', () => { this.size = this.sizeElem.value; callback() } );
+  this.buttonListener = function(callback, method) {
+    this.button.addEventListener('click', () => { this.size = this.sizeElem.value;   callback(method, this.size, this.mode);});
   }
  
-  this.modeListener = function(callback) {
+  this.modeListener = function() {
+    let myEv = new Event('click');
+
     for(let elem of this.modeNodes)
-      elem.addEventListener('click', () => { this.mode = elem.value; callback();});   
+      elem.addEventListener('click', () => { this.mode = elem.value; this.button.dispatchEvent(myEv)});   
   }
 
   this.resListener = function(callback) {
@@ -40,55 +82,13 @@ function Controls () {
   }
 }
 
-function pixelDraw () {
-  function randomColor() { 
-    return '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
-  }
-    this.classList.toggle('grid-container__sketch-hover'); // 3d rotation
-
-    if(ctrl.mode == 'greyscale') {
-        if(this.style.opacity)
-          this.style.opacity =`${+(this.style.opacity) + 0.1}` ;
-        else
-          this.style.opacity = '0.1';
-    
-        this.style.backgroundColor = `rgba(0,0,0, ${this.style.opacity})`;
-    } 
-    else
-        this.style.backgroundColor = `${randomColor()}`;
-    
-    this.style.border = '0px'; // somehow border: 0px; slows grid with 30+ pixels down (dev mode issue)  
-}
-
-function gridInit () {
-  let size = ctrl.size;
-  grid.pixels.forEach(node => node.remove());
-
-  //consider css variables
-  grid.container.style.cssText =`grid-template-columns: repeat(${size}, 1fr); grid-template-rows: repeat(${size}, 1fr);`; 
-  
-  for(let squareSize = size*size, node; squareSize > 0; squareSize--) {
-    node = document.createElement('div');
-    grid.container.appendChild(node);
-  }
-  
-  grid.update();
-  grid.pixelsListener(pixelDraw);
-}
-
-
-
-
- let ctrl = new Controls();
+let ctrl = new Controls();
 /* for (let key in ctrl) {
   if (typeof ctrl[key] == 'function') {
     ctrl[key] = ctrl[key].bind(user);
   }
 } */
 let grid = new Grid();
-grid.resetcssText = grid.resetcssText.bind(grid);
-
-gridInit(); 
-ctrl.buttonListener(gridInit);
-ctrl.modeListener(grid.resetcssText);
+ctrl.buttonListener(grid.gridInit, grid.pixelDraw); // 1st method for grid rendering, 2nd for cells modification 
+ctrl.modeListener();
 ctrl.resListener(grid.resetcssText);
