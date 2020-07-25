@@ -17,7 +17,7 @@ function Grid() {
     this.pixels = this.container.querySelectorAll('div');
   }
 
-  this.gridInit = function (callback, size, mode) { 
+  this.gridInit = function (method, size, mode) { 
       this.pixels.forEach(node => node.remove());
 
       //consider css variables
@@ -27,9 +27,9 @@ function Grid() {
         node = document.createElement('div');
         this.container.appendChild(node);
       }
-      console.log("hi");
+      
       this.update();
-      this.pixels.forEach(elem => elem.addEventListener('mouseover', () => callback(mode) ));
+      this.pixels.forEach(elem => elem.addEventListener('mouseover', () => method(mode) ));
   }
   
   
@@ -52,10 +52,10 @@ function Grid() {
       event.target.style.border = '0px'; // somehow border: 0px; slows grid with 30+ pixels down (dev mode issue)
   }
 
-    
+  this.update = this.update.bind(this);  
   this.resetcssText = this.resetcssText.bind(this);
-  this.gridInit = this.gridInit.bind(this);
   this.pixelDraw = this.pixelDraw.bind(this);
+  this.gridInit = this.gridInit.bind(this, this.pixelDraw);
 } 
   
 function Controls () {
@@ -66,8 +66,8 @@ function Controls () {
   this.size = this.sizeElem.value;
   this.res = document.querySelector("input[name='reset']");
 
-  this.buttonListener = function(callback, method) {
-    this.button.addEventListener('click', () => { this.size = this.sizeElem.value;   callback(method, this.size, this.mode);});
+  this.buttonListener = function(callback) {
+    this.button.addEventListener('click', () => { this.size = this.sizeElem.value;   callback(this.size, this.mode);});
   }
  
   this.modeListener = function() {
@@ -89,6 +89,7 @@ let ctrl = new Controls();
   }
 } */
 let grid = new Grid();
-ctrl.buttonListener(grid.gridInit, grid.pixelDraw); // 1st method for grid rendering, 2nd for cells modification 
+
+ctrl.buttonListener(grid.gridInit); // 1st method for grid rendering, 2nd for cells modification 
 ctrl.modeListener();
 ctrl.resListener(grid.resetcssText);
