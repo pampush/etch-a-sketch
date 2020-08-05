@@ -29,14 +29,15 @@ function Grid() {
 
   this.colorful = function(target) {
     function randomColor() { 
-      return '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
+      return '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0'); //or random(255)+random(255)+random(255);
     }
     target.classList.toggle('grid-container__sketch-hover'); // 3d rotation
     target.style.backgroundColor = `${randomColor()}`;   
-    target.style.border = '0px'; // somehow border: 0px; slows grid with 30+ pixels down (dev mode issue)  
+    target.style.border = '0px';
   };
 
   this.greyscale = function(target) {
+    target.classList.toggle('grid-container__sketch-hover');
     if(target.dataset.opacity)
       target.dataset.opacity =`${+(target.dataset.opacity) + 0.1}` ;
     else
@@ -56,24 +57,6 @@ function Grid() {
   this.resetcssText = this.resetcssText.bind(this);
   this.gridInit = this.gridInit.bind(this);
 } 
-  
-/* const colorfulDraw = function (target) {
-  function randomColor() { 
-    return '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
-  }
-    //target.classList.toggle('grid-container__sketch-hover'); // 3d rotation
-  target.style.backgroundColor = `${randomColor()}`;   
-  target.style.border = '0px'; // somehow border: 0px; slows grid with 30+ pixels down (dev mode issue)   
-}
-
-const greyscaleDraw = function(target) { 
-  if(target.dataset.opacity)
-    target.dataset.opacity =`${+(target.dataset.opacity) + 0.1}` ;
-  else
-    target.dataset.opacity = '0.1';
-
-  target.style.backgroundColor = `rgba(0, 0, 0, ${target.dataset.opacity})`;
-} */
 
 const button = document.querySelector("input[name='submit-button']"),
       modeNodes = document.querySelectorAll("input[name='mode']"),
@@ -90,4 +73,4 @@ switchModeNode.addEventListener('click', (e) => {
   grid.resetcssText()})
 
 res.addEventListener('click', grid.resetcssText);
-grid.gridInit();  
+grid.gridInit();

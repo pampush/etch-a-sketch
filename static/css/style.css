@@ -14,12 +14,55 @@ box-sizing: inherit;
 }
 
 .grid-container__input {
+  display: flex;
+  align-content: center;
+  flex-wrap: wrap;
   grid-row: 2;
   grid-column: 1;
 }
 
-.grid-container__input * {
+.grid-container__input-submit {
+  width: 100%;
+  margin: 10px;
+}
+.grid-container__input-submit span {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 1.5rem;
+}
+.grid-container__input-submit input[name='submit-button'] {
   display: block;
+  width: 50px;
+  border: 1px solid black;
+  background-color: rgb(240, 239, 239);
+  border-radius: 5px;
+  outline: 0px;
+  padding: 3px;
+  margin-top: 3px;
+  box-shadow: 2px 2px 5px black;
+}
+
+.grid-container__input-submit input[type='number'] {
+  width: 150px;
+  outline: none;
+  padding-left: 5px;
+  padding-bottom: 0px;
+  margin-top: 5px;
+  border: 1px solid black;
+  border-radius: 2px;
+  background-color: rgba(240, 239, 239, 0.521);
+  box-shadow: inset 1px 1px 2px black;
+}
+
+.grid-container__input input {
+  width: 100px;
+  border: 1px solid black;
+  background-color: rgb(240, 239, 239);
+  border-radius: 5px;
+  outline: 0px;
+  padding: 7px;
+  margin: 10px;
+  box-shadow: 2px 2px 5px black;
+  /* display: block; */
 }
 
 input[type=number]::-webkit-inner-spin-button, 
@@ -103,31 +146,3 @@ input[type=number]::-webkit-outer-spin-button {
     grid-column: 1;
   }
 }
-
-/*  drawback: perfect for this assignment (changing backgrounds), 
-    but if you want to add content in cell you need to use relative/absolute positioning
-.square-cell__trick {
-  position:relative;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-} 
-
-.square-cell__trick-elem {
-  position:relative;
-  border: 1px solid black;
-}
-.square-cell__trick-elem:before {
-  display:block;
-  content: "";
-  padding-top: 100%; // calculated based on the width!
-}
-
-.square-cell__trick .content {
-  position: absolute;
-  top: 0; left: 0;
-}
-*/
-/* 2nd approach 
-  view  
-
-*/
