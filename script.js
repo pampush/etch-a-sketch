@@ -1,9 +1,11 @@
 // bad code 
 "use strict";
-
 function Grid() {
   this.container = document.querySelector('.grid-container__sketch'); 
   this.pixels = this.container.querySelectorAll('div'); // try children
+  this.mode = 'greyscale';
+  this.size = 3;
+  this.method = null;
 
   this.resetcssText = function() {
     this.pixels.forEach(node => { node.style.cssText=""; node.classList.remove('grid-container__sketch-hover')}); 
@@ -11,78 +13,83 @@ function Grid() {
 
   this.update = function () {
     this.container = document.querySelector('.grid-container__sketch'); 
+    this.container.removeEventListener('mouseover', (e) => { let target = e.target; method(mode, target);});
     this.pixels = this.container.querySelectorAll('div');
   }
 
-  this.gridInit = function (method, size, mode) { 
+  this.gridInit = function () {
     this.pixels.forEach(node => node.remove());
 
     //consider css variables
-    this.container.style.cssText =`grid-template-columns: repeat(${size}, 1fr); grid-template-rows: repeat(${size}, 1fr);`; 
+    this.container.style.cssText =`grid-template-columns: repeat(${this.size}, 1fr); grid-template-rows: repeat(${this.size}, 1fr);`; 
     
-    for(let squareSize = size*size, node; squareSize > 0; squareSize--) {
+    for(let squareSize = this.size*this.size, node; squareSize > 0; squareSize--) {
       node = document.createElement('div');
       this.container.appendChild(node);
     }
     
     this.update();
-    let func = method(mode); // to keep elem context below
-    this.pixels.forEach(elem => elem.addEventListener('mouseover', func));
+    //this.pixels.forEach(elem => elem.addEventListener('mouseover', method(mode)));
+    this.container.addEventListener('mouseover', (e) => { let target = e.target; if(!this.method) return; this.method(target);})
   }
   
-  this.pixelDraw = function (mode) {
+  
+ /*  this.pixelDraw = function (mode) {
     function randomColor() { 
       return '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
     }
     return function() { 
       this.classList.toggle('grid-container__sketch-hover'); // 3d rotation
       if(mode == 'greyscale') {
-          if(this.style.opacity)
-            this.style.opacity =`${+(this.style.opacity) + 0.1}` ;
+          if(this.dataset.opacity)
+            this.dataset.opacity =`${+(this.dataset.opacity) + 0.1}` ;
           else
-            this.style.opacity = '0.1';
+            this.dataset.opacity = '0.1';
       
-          this.style.backgroundColor = `rgba(0, 0, 0, ${this.style.opacity})`;
+          this.style.backgroundColor = `rgba(0, 0, 0, ${this.dataset.opacity})`;
       } 
       else
           this.style.backgroundColor = `${randomColor()}`;
       
       this.style.border = '0px'; // somehow border: 0px; slows grid with 30+ pixels down (dev mode issue)
     }
-  }
-
+  } */
+ 
   this.update = this.update.bind(this);  
   this.resetcssText = this.resetcssText.bind(this);
-  this.gridInit = this.gridInit.bind(this, this.pixelDraw);
+  this.gridInit = this.gridInit.bind(this);
 } 
   
-function Controls () {
-  this.button = document.querySelector("input[name='submit-button']");
-  this.mode = 'greyscale';
-  this.modeNodes = document.querySelectorAll("input[name='mode']");
-  this.sizeElem = document.querySelector("input[type='number']");
-  this.size = this.sizeElem.value;
-  this.res = document.querySelector("input[name='reset']");
-
-  this.buttonListener = function(initFunc) {
-    this.button.addEventListener('click', () => { this.size = this.sizeElem.value; initFunc(this.size, this.mode);});
+const colorfulDraw = function (target) {
+  function randomColor() { 
+    return '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
   }
- 
-  this.modeListener = function() {
-    let myEv = new Event('click');
-    for(let elem of this.modeNodes)
-      elem.addEventListener('click', () => { this.mode = elem.value; this.button.dispatchEvent(myEv)});   
-  }
-
-  this.resListener = function(resFunc) {
-    this.res.addEventListener('click',resFunc);
-  }
+    //target.classList.toggle('grid-container__sketch-hover'); // 3d rotation
+  target.style.backgroundColor = `${randomColor()}`;   
+  target.style.border = '0px'; // somehow border: 0px; slows grid with 30+ pixels down (dev mode issue)   
 }
 
-let ctrl = new Controls();
-let grid = new Grid();
+const greyscaleDraw = function(target) { 
+  if(target.dataset.opacity)
+    target.dataset.opacity =`${+(target.dataset.opacity) + 0.1}` ;
+  else
+    target.dataset.opacity = '0.1';
 
-grid.gridInit(ctrl.size, ctrl.mode);
-ctrl.buttonListener(grid.gridInit); // 1st method for grid rendering, 2nd for cells modification 
-ctrl.modeListener();
-ctrl.resListener(grid.resetcssText);
+  target.style.backgroundColor = `rgba(0, 0, 0, ${target.dataset.opacity})`;
+}
+
+  const button = document.querySelector("input[name='submit-button']"),
+        modeNodes = document.querySelectorAll("input[name='mode']"),
+        sizeElem = document.querySelector("input[type='number']"),
+        res = document.querySelector("input[name='reset']"),
+        colorfulNode = document.querySelector("input[value='colorful']"),
+        greyscaleNode = document.querySelector("input[value='greyscale']"),
+        grid = new Grid(); 
+  
+  button.addEventListener('click', () => {  grid.size = sizeElem.value; grid.gridInit(pixelDraw);});
+  
+  colorfulNode.addEventListener('click', () => { grid.mode = 'colorful'; grid.resetcssText(); grid.method = colorfulDraw});   
+  greyscaleNode.addEventListener('click', () => { grid.mode = 'greyscale'; grid.resetcssText(); grid.method = greyscaleDraw}); 
+  res.addEventListener('click', () => grid.resetcssText);
+  grid.method = colorfulDraw;
+  grid.gridInit();
