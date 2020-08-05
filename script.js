@@ -1,68 +1,76 @@
 "use strict";
-/**
- *  gridInit removes then creates new grid
- */
-function gridInit () {
-  let gridSize = document.querySelector("input[type='number']");
-  let size = gridSize.value; // to do: validator
-  let container = document.querySelector('.grid-container__sketch');
-  let pixels = container.querySelectorAll('div'); // childNodes returns text nodes
-  pixels.forEach(node => node.remove());
+function Grid() {
+  this.container = document.querySelector('.grid-container__sketch');
+  this.pixels = this.container.querySelectorAll('div'); // try children
+  this.mode = 'greyscale';
+  this.size = 3;
+  this.method = 'greyscale';
 
-  container.style.cssText =`grid-template-columns: repeat(${size}, 1fr); grid-template-rows: repeat(${size}, 1fr);`; 
-  let squareSize = size * size
-  while (squareSize--) {
-    let node = document.createElement('div');
-    container.appendChild(node);
-  }
-  pixels = container.querySelectorAll('div'); 
-  pixels.forEach(elem => elem.addEventListener('mouseover', pixelDraw)); 
-}
-
-/**
- * removes all pixel's styles
- */
-function resetcssText() {
-  let container = document.querySelector('.grid-container__sketch');
-  let pixels = container.querySelectorAll('div'); // childNodes returns text nodes
-  pixels.forEach((node) => { node.style.cssText=""; node.classList.remove('grid-container__sketch-hover')}); 
-}
-
-/**
- * manipulate with pixel's styles to switch background
- * @function randomColor - generates random hex color code   
- */
-function pixelDraw() {
-  function randomColor() {
-    return '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0');
+  this.resetcssText = function() {
+    this.pixels.forEach(node => { node.style.cssText=''; node.dataset.opacity='0'; node.classList.remove('grid-container__sketch-hover')}); 
   }
 
-  this.classList.toggle('grid-container__sketch-hover'); // 3d rotation
+  this.update = function () {
+    this.pixels = this.container.querySelectorAll('div');
+  }
 
-  if(badvarMode == 'greyscale') {
-    if(this.style.opacity)
-      this.style.opacity =`${+(this.style.opacity) + 0.1}` ;
+  this.gridInit = function () {
+    this.pixels.forEach(node => node.remove());
+
+    //consider css variables
+    this.container.style.cssText =`grid-template-columns: repeat(${this.size}, 1fr); grid-template-rows: repeat(${this.size}, 1fr);`; 
+    
+    for(let squareSize = this.size*this.size, node; squareSize > 0; squareSize--) {
+      node = document.createElement('div');
+      this.container.appendChild(node);
+    }
+    this.update();
+  }  
+
+  this.colorful = function(target) {
+    function randomColor() { 
+      return '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0'); //or random(255)+random(255)+random(255);
+    }
+    target.classList.toggle('grid-container__sketch-hover'); // 3d rotation
+    target.style.backgroundColor = `${randomColor()}`;   
+    target.style.border = '0px';
+  };
+
+  this.greyscale = function(target) {
+    target.classList.toggle('grid-container__sketch-hover');
+    if(target.dataset.opacity)
+      target.dataset.opacity =`${+(target.dataset.opacity) + 0.1}` ;
     else
-      this.style.opacity = '0.1';
+      target.dataset.opacity = '0.1';
+    target.style.border = '0px';
+    target.style.backgroundColor = `rgba(0, 0, 0, ${target.dataset.opacity})`;
+  };
 
-    this.style.backgroundColor = `rgba(0,0,0, ${this.style.opacity})`;
-  } 
-  else
-    this.style.backgroundColor = `${randomColor()}`;
-  
-  this.style.border = '0px'; // somehow border: 0px; slows grid with 30+ pixels down (dev mode issue)   
-  }
+  this.onMouseOver = function(e) {
+    if(!this[this.method] || e.target.classList == 'grid-container__sketch') 
+      return; 
+    this[this.method](e.target);
+  };
 
-let container = document.querySelector('.grid-container__sketch');
-let pixels = container.querySelectorAll('div'); // childNodes returns text nodes
-let button = document.querySelector("input[name='submit-button']"); // multiple attributes??
+  this.container.addEventListener('mouseover', this.onMouseOver.bind(this)); 
+  this.update = this.update.bind(this);  
+  this.resetcssText = this.resetcssText.bind(this);
+  this.gridInit = this.gridInit.bind(this);
+} 
 
-let mode = document.querySelectorAll("input[name='mode']");
-let badvarMode ='';
-mode.forEach(elem => elem.addEventListener('click', function () { resetcssText(); badvarMode = this.value}))
+const button = document.querySelector("input[name='submit-button']"),
+      modeNodes = document.querySelectorAll("input[name='mode']"),
+      sizeElem = document.querySelector("input[type='number']"),
+      res = document.querySelector("input[name='reset']"),
+      switchModeNode = document.querySelector(".switch-mode"),
+      grid = new Grid(); 
 
-button.addEventListener('click', gridInit);
-pixels.forEach(elem => elem.addEventListener('mouseover', pixelDraw));
+button.addEventListener('click', () => {  grid.size = sizeElem.value; grid.gridInit();});
 
-let res = document.querySelector("input[name='reset']");
-res.addEventListener('click', resetcssText);
+switchModeNode.addEventListener('click', (e) => { 
+  if(e.target && e.target.tagName == 'INPUT') 
+    grid.method = e.target.value; 
+  grid.resetcssText()})
+
+res.addEventListener('click', grid.resetcssText);
+grid.gridInit();

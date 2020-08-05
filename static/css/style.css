@@ -57,7 +57,7 @@ box-sizing: inherit;
   box-shadow: inset 1px 1px 2px black;
 }
 
-.grid-container__input > input {
+.grid-container__input input {
   width: 100px;
   border: 1px solid black;
   background-color: rgb(240, 239, 239);
@@ -150,31 +150,3 @@ input[type=number]::-webkit-outer-spin-button {
     grid-column: 1;
   }
 }
-
-/*  drawback: perfect for this assignment (changing backgrounds), 
-    but if you want to add content in cell you need to use relative/absolute positioning
-.square-cell__trick {
-  position:relative;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-} 
-
-.square-cell__trick-elem {
-  position:relative;
-  border: 1px solid black;
-}
-.square-cell__trick-elem:before {
-  display:block;
-  content: "";
-  padding-top: 100%; // calculated based on the width!
-}
-
-.square-cell__trick .content {
-  position: absolute;
-  top: 0; left: 0;
-}
-*/
-/* 2nd approach 
-  view  
-
-*/
